@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Investigación de Fondos - Colossus Lab</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos personalizados para Charts y Scrollbar -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* gris muy claro de fondo */
+            color: #1f2937;
+        }
+        
+        /* Contenedores de Gráficos Responsivos - CRITICAL */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .chart-wrapper {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+        }
+
+        /* Estilo sutil para scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        .active-tab {
+            border-bottom: 2px solid #0891b2; /* Cyan-600 */
+            color: #0891b2;
+            font-weight: 600;
+        }
+    </style>
+
+    <!-- Placeholder Comments Required -->
+    <!-- Chosen Palette: "Tech Foundation Blue & Teal" - Grounded in Slate-50/100 backgrounds with Royal Blue (Primary) and Teal/Cyan (Accent) for a professional, trustworthy, yet modern tech feel suited for Colossus Lab. -->
+    
+    <!-- Application Structure Plan:
+         1. Header & Context: Introduction to the research mission for Colossus Lab.
+         2. Executive Summary (KPIs): Quick view of total potential funding and complexity.
+         3. Strategic Visualizations (Charts): 
+            - Source Distribution (Traditional vs. Web3).
+            - Risk/Reward Matrix (Scatter Plot) to balance "easy wins" vs "big grants".
+         4. Opportunity Explorer (Main Interactive Tool): A filterable, sortable list of specific funds (CAF, BID, Cardano, etc.) with expandable details. This allows the user to drill down into specific requirements.
+         5. Roadmap Generator: A dynamic timeline view based on selected opportunities.
+         Rationale: The user needs to move from "broad search" to "specific action". The structure guides them from the "What" (Overview) to the "Where" (Analysis) and finally the "How" (Specific Grants).
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. KPI Cards: Simple HTML/CSS stats. Goal: Instant context on the scale of opportunity.
+         2. Doughnut Chart (Chart.js): Breakdown of funding types (Gov vs. Blockchain). Goal: Inform on ecosystem diversity. Interaction: Click legend to filter list.
+         3. Scatter Plot (Plotly): Grant Amount (Y) vs. Difficulty (X). Goal: Decision support (Low hanging fruit vs. Moonshots). Justification: Plotly handles scatter tooltips better than Chart.js.
+         4. Opportunity List: HTML Grid/Flex with JS filtering. Goal: Organize dense text data. Interaction: Expand for details, "Add to Roadmap" button.
+         5. Roadmap: HTML Timeline. Goal: Planning. Interaction: Updates based on "Selected" funds.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+</head>
+<body class="antialiased text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <!-- Icono simulado con texto/unicode -->
+                        <span class="text-2xl text-cyan-600">◉</span>
+                        <span class="font-bold text-xl tracking-tight text-slate-900">Colossus Lab <span class="text-cyan-600 font-normal">| Financiación</span></span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="switchSection('dashboard')" id="nav-dashboard" class="px-3 py-2 text-sm font-medium text-gray-900 active-tab transition-colors">Dashboard</button>
+                    <button onclick="switchSection('explorer')" id="nav-explorer" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-cyan-600 transition-colors">Explorador de Fondos</button>
+                    <button onclick="switchSection('roadmap')" id="nav-roadmap" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-cyan-600 transition-colors">Plan de Acción</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header Context -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">Investigación de Oportunidades de Fondeo</h1>
+            <p class="mt-2 text-lg text-slate-600 max-w-3xl">
+                Análisis estratégico de subvenciones, becas y capital semilla para <span class="font-semibold text-cyan-700">Fundación Colossus Lab</span>. 
+                Foco en entidades multilaterales (BID, CAF) y ecosistemas Web3/Blockchain (Cardano, Internet Society).
+            </p>
+        </div>
+
+        <!-- SECTION: DASHBOARD (Default) -->
+        <div id="section-dashboard" class="space-y-8 animate-fade-in">
+            
+            <!-- Context Intro -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <span class="text-blue-500 text-xl">ℹ</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Resumen Ejecutivo:</strong> Esta sección sintetiza el panorama actual de financiación. Se han identificado oportunidades clave divididas entre "Banca Tradicional/Multilateral" (alta burocracia, altos montos) y "Fondos Web3/Tech" (rapidez, innovación, montos variables). Utilice los gráficos para entender la relación riesgo/beneficio.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500 uppercase">Oportunidades Identificadas</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900" id="kpi-count">12</p>
+                    <span class="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full mt-2 inline-block">Activas ahora</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500 uppercase">Potencial Total (Est.)</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900" id="kpi-amount">$450k+</p>
+                    <span class="text-xs text-gray-500 mt-1 block">USD combinados</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500 uppercase">Dificultad Promedio</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">Media-Alta</p>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-3">
+                        <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500 uppercase">Próximo Deadline</p>
+                    <p class="mt-2 text-3xl font-bold text-red-600">15 Oct</p>
+                    <span class="text-xs text-gray-500 mt-1 block">Project Catalyst Fund 11</span>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Chart 1: Distribution -->
+                <div class="chart-wrapper flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribución por Ecosistema</h3>
+                    <p class="text-sm text-gray-500 mb-4">Comparativa de volumen de fondos disponibles entre fuentes tradicionales vs. innovación.</p>
+                    <div class="chart-container flex-grow">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Strategic Matrix (Plotly) -->
+                <div class="chart-wrapper flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Matriz de Estrategia: Impacto vs. Esfuerzo</h3>
+                    <p class="text-sm text-gray-500 mb-4">Análisis de viabilidad. Buscamos el cuadrante superior izquierdo (Alto Impacto, Menor Esfuerzo).</p>
+                    <div class="chart-container" id="scatterPlot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: EXPLORER (Hidden by default) -->
+        <div id="section-explorer" class="hidden space-y-6">
+            
+            <!-- Intro Text -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-slate-800 mb-2">Explorador de Fondos Detallado</h2>
+                <p class="text-gray-600">
+                    Utilice esta herramienta para filtrar las oportunidades específicas de CAF, BID, Internet Society y ecosistemas Blockchain. 
+                    Seleccione <span class="font-bold text-cyan-600">"Ver Detalles"</span> para analizar requisitos específicos y <span class="font-bold text-cyan-600">"Seguir"</span> para agregar al Plan de Acción.
+                </p>
+                
+                <!-- Filters -->
+                <div class="mt-6 flex flex-wrap gap-4 items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Buscar</label>
+                        <input type="text" id="searchInput" placeholder="Ej: Blockchain, Educación..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Categoría</label>
+                        <select id="categoryFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white">
+                            <option value="all">Todas</option>
+                            <option value="Multilateral">Multilateral (BID/CAF)</option>
+                            <option value="Blockchain">Blockchain/Web3</option>
+                            <option value="ONG">ONG / Tech Society</option>
+                        </select>
+                    </div>
+                    <div class="flex-none pt-5">
+                        <button onclick="renderOpportunities()" class="bg-cyan-600 text-white px-4 py-2 rounded-md hover:bg-cyan-700 transition font-medium text-sm">Actualizar Filtros</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards Container -->
+            <div id="opportunities-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards will be injected here via JS -->
+            </div>
+
+        </div>
+
+        <!-- SECTION: ROADMAP (Hidden by default) -->
+        <div id="section-roadmap" class="hidden space-y-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Plan de Acción y Cronograma</h2>
+                <p class="text-gray-600 mb-6">
+                    Hoja de ruta sugerida basada en los cierres de convocatoria. Las oportunidades marcadas como "Seguidas" aparecerán aquí.
+                </p>
+                
+                <div class="relative border-l-2 border-cyan-200 ml-4 space-y-8" id="timeline-container">
+                    <!-- Timeline items generated by JS -->
+                    <div class="mb-10 ml-6">
+                        <span class="absolute flex items-center justify-center w-6 h-6 bg-cyan-100 rounded-full -left-3 ring-8 ring-white">
+                            <span class="text-cyan-800 text-xs font-bold">1</span>
+                        </span>
+                        <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900">Preparación de Documentación Base</h3>
+                        <time class="block mb-2 text-sm font-normal leading-none text-gray-400">Inmediato</time>
+                        <p class="mb-4 text-base font-normal text-gray-500">Recopilar estatutos de la fundación, estados financieros y CVs del equipo clave (Colossus Lab Team).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-400">
+                Generado para Colossus Lab. Datos simulados para fines de planificación estratégica.
+                <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+            </p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA STORE ---
+        // Simulated research data based on prompt entities
+        const opportunityData = [
+            {
+                id: 1,
+                source: "BID Lab",
+                program: "Convocatoria de Innovación Deep Tech",
+                category: "Multilateral",
+                amount: 150000,
+                difficulty: 8, // 1-10
+                description: "Financiación para startups y fundaciones que usen tecnología profunda para impacto social en Latam.",
+                deadline: "2024-11-30",
+                focus: ["Innovación", "Impacto Social"],
+                status: "open",
+                requirements: "Personalidad jurídica, MVP validado, contrapartida 20%."
+            },
+            {
+                id: 2,
+                source: "Cardano (Project Catalyst)",
+                program: "Fund 11 - Developer Ecosystem",
+                category: "Blockchain",
+                amount: 50000,
+                difficulty: 4,
+                description: "Fondos votados por la comunidad para herramientas de código abierto que mejoren el ecosistema Cardano.",
+                deadline: "2024-10-15",
+                focus: ["Desarrollo", "Open Source"],
+                status: "closing-soon",
+                requirements: "Propuesta pública en Ideascale, Wallet ADA."
+            },
+            {
+                id: 3,
+                source: "CAF",
+                program: "Digitalización para el Desarrollo",
+                category: "Multilateral",
+                amount: 200000,
+                difficulty: 9,
+                description: "Apoyo técnico y financiero para proyectos que reduzcan la brecha digital en regiones andinas.",
+                deadline: "2025-01-20",
+                focus: ["Infraestructura", "Política Pública"],
+                status: "open",
+                requirements: "Alianza con gobierno local recomendada."
+            },
+            {
+                id: 4,
+                source: "Internet Society (ISOC)",
+                program: "Beyond the Net Large Grants",
+                category: "ONG",
+                amount: 30000,
+                difficulty: 6,
+                description: "Proyectos que empoderen a las personas para usar Internet en beneficio de sus comunidades.",
+                deadline: "2024-12-01",
+                focus: ["Educación", "Conectividad"],
+                status: "open",
+                requirements: "Ser capítulo de ISOC o miembro activo."
+            },
+            {
+                id: 5,
+                source: "Optimism (RetroPGF)",
+                program: "Retroactive Public Goods Funding",
+                category: "Blockchain",
+                amount: 75000,
+                difficulty: 5,
+                description: "Financiación retroactiva para proyectos que ya han aportado valor al ecosistema Ethereum/Optimism.",
+                deadline: "TBD",
+                focus: ["Public Goods", "Ethereum"],
+                status: "future",
+                requirements: "Demostración de impacto previo."
+            },
+            {
+                id: 6,
+                source: "UNICEF Innovation Fund",
+                program: "Blockchain Cohort",
+                category: "ONG",
+                amount: 100000,
+                difficulty: 8,
+                description: "Inversión en soluciones blockchain open-source que aborden desafíos de desarrollo global.",
+                deadline: "2024-11-15",
+                focus: ["Niñez", "Transparencia"],
+                status: "open",
+                requirements: "Tecnología Open Source obligatoria."
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let appState = {
+            currentSection: 'dashboard',
+            filters: {
+                search: '',
+                category: 'all'
+            },
+            following: [2] // IDs of followed opportunities (simulating user selection)
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderOpportunities();
+            renderTimeline();
+            updateKPIs();
+        });
+
+        // --- NAVIGATION LOGIC ---
+        function switchSection(sectionId) {
+            // Update State
+            appState.currentSection = sectionId;
+
+            // Hide all sections
+            ['dashboard', 'explorer', 'roadmap'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('hidden');
+                document.getElementById(`nav-${id}`).classList.remove('active-tab', 'text-gray-900');
+                document.getElementById(`nav-${id}`).classList.add('text-gray-500');
+            });
+
+            // Show selected
+            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+            document.getElementById(`nav-${sectionId}`).classList.add('active-tab', 'text-gray-900');
+            document.getElementById(`nav-${sectionId}`).classList.remove('text-gray-500');
+            
+            // Refresh visualizations if needed (Plotly resize fix)
+            if(sectionId === 'dashboard') {
+                Plotly.Plots.resize('scatterPlot');
+            }
+        }
+
+        // --- CHARTING LOGIC ---
+        function initCharts() {
+            // 1. Doughnut Chart (Chart.js)
+            const ctxDist = document.getElementById('distributionChart').getContext('2d');
+            
+            // Aggregating data for chart
+            const cats = {};
+            opportunityData.forEach(op => {
+                cats[op.category] = (cats[op.category] || 0) + op.amount;
+            });
+
+            new Chart(ctxDist, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats),
+                    datasets: [{
+                        data: Object.values(cats),
+                        backgroundColor: [
+                            '#0891b2', // Cyan 600 (Multilateral)
+                            '#4f46e5', // Indigo 600 (Blockchain)
+                            '#f59e0b'  // Amber 500 (ONG)
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.raw);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Scatter Plot (Plotly.js)
+            const scatterTrace = {
+                x: opportunityData.map(d => d.difficulty),
+                y: opportunityData.map(d => d.amount),
+                mode: 'markers',
+                type: 'scatter',
+                text: opportunityData.map(d => `${d.source}<br>${d.program}`),
+                marker: {
+                    size: 14,
+                    color: opportunityData.map(d => {
+                        if(d.category === 'Multilateral') return '#0891b2';
+                        if(d.category === 'Blockchain') return '#4f46e5';
+                        return '#f59e0b';
+                    }),
+                    opacity: 0.8
+                }
+            };
+
+            const layout = {
+                margin: {t: 20, r: 20, b: 40, l: 60},
+                xaxis: { 
+                    title: 'Dificultad de Aplicación (1-10)',
+                    range: [0, 11],
+                    gridcolor: '#e5e7eb'
+                },
+                yaxis: { 
+                    title: 'Monto Potencial (USD)',
+                    gridcolor: '#e5e7eb',
+                    tickformat: '$,'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                hovermode: 'closest'
+            };
+
+            Plotly.newPlot('scatterPlot', [scatterTrace], layout, {responsive: true, displayModeBar: false});
+        }
+
+        // --- DOM MANIPULATION: EXPLORER ---
+        function renderOpportunities() {
+            const grid = document.getElementById('opportunities-grid');
+            grid.innerHTML = '';
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const catFilter = document.getElementById('categoryFilter').value;
+
+            const filtered = opportunityData.filter(op => {
+                const matchesSearch = op.source.toLowerCase().includes(searchTerm) || 
+                                      op.program.toLowerCase().includes(searchTerm) ||
+                                      op.description.toLowerCase().includes(searchTerm);
+                const matchesCat = catFilter === 'all' || op.category === catFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 text-center py-10 text-gray-400">No se encontraron resultados. Intente otros filtros.</div>`;
+                return;
+            }
+
+            filtered.forEach(op => {
+                const isFollowed = appState.following.includes(op.id);
+                const btnClass = isFollowed ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50';
+                const btnText = isFollowed ? '✓ Seguido' : '+ Seguir';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow";
+                card.innerHTML = `
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                ${op.category === 'Multilateral' ? 'bg-cyan-100 text-cyan-800' : 
+                                  op.category === 'Blockchain' ? 'bg-indigo-100 text-indigo-800' : 
+                                  'bg-amber-100 text-amber-800'}">
+                                ${op.category}
+                            </span>
+                            <span class="text-xs font-bold text-slate-500">Dificultad: ${op.difficulty}/10</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 leading-tight mb-1">${op.source}</h3>
+                        <p class="text-sm font-medium text-slate-600 mb-3">${op.program}</p>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-3">${op.description}</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                            <div>
+                                <span class="block font-bold text-slate-700">Monto:</span>
+                                $${op.amount.toLocaleString()}
+                            </div>
+                            <div>
+                                <span class="block font-bold text-slate-700">Deadline:</span>
+                                ${op.deadline === 'TBD' ? 'Por definir' : op.deadline}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex gap-2">
+                        <button onclick="toggleFollow(${op.id})" class="flex-1 px-3 py-2 text-sm font-medium border rounded-md transition-colors ${btnClass}">
+                            ${btnText}
+                        </button>
+                        <button onclick="alert('Detalles Requisitos:\\n${op.requirements}')" class="px-3 py-2 text-sm font-medium text-cyan-700 hover:text-cyan-800">
+                            Ver Detalles
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleFollow(id) {
+            if(appState.following.includes(id)) {
+                appState.following = appState.following.filter(fid => fid !== id);
+            } else {
+                appState.following.push(id);
+            }
+            renderOpportunities();
+            renderTimeline();
+            updateKPIs();
+        }
+
+        // --- DOM MANIPULATION: TIMELINE ---
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            // Keep the static first item, clear rest
+            const staticItem = container.firstElementChild; 
+            container.innerHTML = '';
+            container.appendChild(staticItem);
+
+            const followedOps = opportunityData.filter(op => appState.following.includes(op.id));
+            
+            // Sort by deadline
+            followedOps.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            if(followedOps.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = "ml-6 text-gray-400 italic text-sm";
+                emptyMsg.innerText = "No hay oportunidades seleccionadas. Vaya al explorador y siga algunas.";
+                container.appendChild(emptyMsg);
+                return;
+            }
+
+            followedOps.forEach((op, index) => {
+                const item = document.createElement('div');
+                item.className = "mb-10 ml-6 animate-fade-in";
+                
+                // Color logic based on deadline proximity (mock logic)
+                const today = new Date();
+                const deadlineDate = new Date(op.deadline);
+                const diffTime = Math.abs(deadlineDate - today);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                const urgencyColor = diffDays < 30 ? 'bg-red-100 text-red-800' : 'bg-cyan-100 text-cyan-800';
+
+                item.innerHTML = `
+                    <span class="absolute flex items-center justify-center w-6 h-6 ${urgencyColor} rounded-full -left-3 ring-8 ring-white">
+                        <span class="text-xs font-bold">${index + 2}</span>
+                    </span>
+                    <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900">
+                        Aplicar a ${op.source}
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded ml-3">En progreso</span>
+                    </h3>
+                    <time class="block mb-2 text-sm font-normal leading-none text-gray-400">Deadline: ${op.deadline}</time>
+                    <p class="mb-4 text-base font-normal text-gray-500">
+                        Programa: ${op.program}.<br>
+                        Requisito Clave: ${op.requirements}
+                    </p>
+                    <a href="#" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200">
+                        Iniciar Aplicación 
+                        <svg class="w-3 h-3 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </a>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // --- DOM MANIPULATION: KPIs ---
+        function updateKPIs() {
+            // Count
+            document.getElementById('kpi-count').innerText = opportunityData.length;
+            
+            // Calc Total
+            const total = opportunityData.reduce((acc, curr) => acc + curr.amount, 0);
+            document.getElementById('kpi-amount').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 3 }).format(total);
+        }
+
+    </script>
+</body>
+</html>

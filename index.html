@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Investigación de Fondos - Colossus Lab</title>
+    <meta name="description" content="Análisis estratégico de oportunidades de financiación para Fundación Colossus Lab. Subvenciones, becas y capital semilla de entidades multilaterales y ecosistemas Web3/Blockchain.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* ===== GLASSMORPHISM CARDS ===== */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+        }
+
+        /* ===== CHART CONTAINERS ===== */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 320px; }
+        }
+
+        /* ===== KPI GLOW ===== */
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ===== NAV ACTIVE ===== */
+        .active-tab {
+            color: #06b6d4 !important;
+            border-bottom: 2px solid #06b6d4;
+            font-weight: 600;
+        }
+
+        /* ===== HAMBURGER ANIMATION ===== */
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #94a3b8;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ===== MOBILE MENU ===== */
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+        .mobile-menu.open {
+            max-height: 300px;
+        }
+
+        /* ===== DOWNLOAD BUTTON PULSE ===== */
+        .download-btn {
+            background: linear-gradient(135deg, #06b6d4, #6366f1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .download-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+        .download-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.35);
+        }
+
+        /* ===== CATEGORY BADGE COLORS ===== */
+        .badge-multilateral { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+        .badge-blockchain { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+        .badge-ong { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        /* ===== FADE IN ANIMATION ===== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        /* ===== OPPORTUNITY CARD HOVER ===== */
+        .opp-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .opp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== HERO GRADIENT TEXT ===== */
+        .gradient-text {
+            background: linear-gradient(135deg, #06b6d4, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-open { background: rgba(34,197,94,0.2); color: #4ade80; }
+        .status-closing { background: rgba(239,68,68,0.2); color: #f87171; }
+        .status-future { background: rgba(148,163,184,0.2); color: #94a3b8; }
+
+        /* ===== MODAL ===== */
+        .modal-backdrop {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen">
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="bg-slate-900/80 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">◉</span>
+                    <span class="font-bold text-lg sm:text-xl tracking-tight text-white">
+                        Colossus Lab <span class="gradient-text font-normal">| Financiación</span>
+                    </span>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchSection('dashboard')" id="nav-dashboard" class="px-3 py-2 text-sm font-medium active-tab transition-colors rounded-md">Dashboard</button>
+                    <button onclick="switchSection('explorer')" id="nav-explorer" class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Explorador</button>
+                    <button onclick="switchSection('roadmap')" id="nav-roadmap" class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Plan de Acción</button>
+                    <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="download-btn ml-3 px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+                        Descargar PDF
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <button class="hamburger md:hidden flex flex-col gap-[5px] p-2" id="hamburgerBtn" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu md:hidden border-t border-slate-700/50" id="mobileMenu">
+            <div class="px-4 py-3 space-y-2">
+                <button onclick="switchSection('dashboard'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Dashboard</button>
+                <button onclick="switchSection('explorer'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Explorador de Fondos</button>
+                <button onclick="switchSection('roadmap'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Plan de Acción</button>
+                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="download-btn block text-center px-4 py-2 text-sm font-semibold text-white rounded-lg mt-2">
+                    📥 Descargar Informe PDF
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        <!-- Header -->
+        <div class="mb-8 animate-fade-up">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+                Investigación de Oportunidades de <span class="gradient-text">Fondeo</span>
+            </h1>
+            <p class="mt-3 text-base sm:text-lg text-slate-400 max-w-3xl leading-relaxed">
+                Análisis estratégico de subvenciones, becas y capital semilla para
+                <span class="font-semibold text-cyan-400">Fundación Colossus Lab</span>.
+                Foco en entidades multilaterales (BID, CAF) y ecosistemas Web3/Blockchain (Cardano, Internet Society).
+            </p>
+        </div>
+
+        <!-- ========== SECTION: DASHBOARD ========== -->
+        <div id="section-dashboard" class="space-y-6 sm:space-y-8 animate-fade-up">
+
+            <!-- Info Banner -->
+            <div class="glass-card p-4 border-l-4 border-indigo-500">
+                <div class="flex items-start gap-3">
+                    <span class="text-indigo-400 text-lg mt-0.5">ℹ</span>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        <strong class="text-indigo-300">Resumen Ejecutivo:</strong> Se han identificado oportunidades clave divididas entre "Banca Tradicional/Multilateral" (alta burocracia, altos montos) y "Fondos Web3/Tech" (rapidez, innovación, montos variables). Utilice los gráficos para entender la relación riesgo/beneficio.
+                    </p>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                <div class="glass-card kpi-card p-4 sm:p-6">
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Oportunidades</p>
+                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-white" id="kpi-count">12</p>
+                    <span class="text-xs text-emerald-400 font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full mt-2 inline-block">Activas</span>
+                </div>
+                <div class="glass-card kpi-card p-4 sm:p-6">
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Potencial Total</p>
+                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-white" id="kpi-amount">$450k+</p>
+                    <span class="text-xs text-slate-500 mt-1 block">USD combinados</span>
+                </div>
+                <div class="glass-card kpi-card p-4 sm:p-6">
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Dificultad Prom.</p>
+                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-white">Media-Alta</p>
+                    <div class="w-full bg-slate-700 rounded-full h-1.5 mt-3">
+                        <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-1.5 rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="glass-card kpi-card p-4 sm:p-6">
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Próximo Deadline</p>
+                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-red-400">15 Oct</p>
+                    <span class="text-xs text-slate-500 mt-1 block">Project Catalyst F11</span>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+                <div class="glass-card p-4 sm:p-6 flex flex-col">
+                    <h3 class="text-lg font-semibold text-white mb-1">Distribución por Ecosistema</h3>
+                    <p class="text-sm text-slate-500 mb-4">Volumen de fondos disponibles: tradicionales vs. innovación.</p>
+                    <div class="chart-container flex-grow">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card p-4 sm:p-6 flex flex-col">
+                    <h3 class="text-lg font-semibold text-white mb-1">Matriz: Impacto vs. Esfuerzo</h3>
+                    <p class="text-sm text-slate-500 mb-4">Buscamos el cuadrante superior izquierdo (Alto Impacto, Menor Esfuerzo).</p>
+                    <div class="chart-container" id="scatterPlot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SECTION: EXPLORER ========== -->
+        <div id="section-explorer" class="hidden space-y-6 animate-fade-up">
+
+            <div class="glass-card p-4 sm:p-6">
+                <h2 class="text-xl font-bold text-white mb-2">Explorador de Fondos</h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Filtre oportunidades de CAF, BID, Internet Society y ecosistemas Blockchain.
+                    <span class="font-semibold text-cyan-400">"Ver Detalles"</span> para requisitos específicos,
+                    <span class="font-semibold text-cyan-400">"Seguir"</span> para agregar al Plan de Acción.
+                </p>
+
+                <!-- Filters -->
+                <div class="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end p-3 sm:p-4 bg-slate-800/50 rounded-lg">
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Buscar</label>
+                        <input type="text" id="searchInput" placeholder="Ej: Blockchain, Educación..."
+                               class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm">
+                    </div>
+                    <div class="flex-1 sm:max-w-[200px]">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Categoría</label>
+                        <select id="categoryFilter" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
+                            <option value="all">Todas</option>
+                            <option value="Multilateral">Multilateral (BID/CAF)</option>
+                            <option value="Blockchain">Blockchain/Web3</option>
+                            <option value="ONG">ONG / Tech Society</option>
+                        </select>
+                    </div>
+                    <button onclick="renderOpportunities()" class="download-btn px-5 py-2 text-sm font-semibold text-white rounded-md">
+                        Filtrar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div id="opportunities-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
+        </div>
+
+        <!-- ========== SECTION: ROADMAP ========== -->
+        <div id="section-roadmap" class="hidden space-y-8 animate-fade-up">
+            <div class="glass-card p-4 sm:p-6">
+                <h2 class="text-xl font-bold text-white mb-3">Plan de Acción y Cronograma</h2>
+                <p class="text-slate-400 text-sm sm:text-base mb-6">
+                    Hoja de ruta sugerida. Las oportunidades marcadas como "Seguidas" aparecerán aquí.
+                </p>
+
+                <div class="relative border-l-2 border-cyan-800/50 ml-4 space-y-8" id="timeline-container">
+                    <div class="mb-10 ml-6">
+                        <span class="absolute flex items-center justify-center w-6 h-6 bg-cyan-900 rounded-full -left-3 ring-4 ring-slate-900">
+                            <span class="text-cyan-300 text-xs font-bold">1</span>
+                        </span>
+                        <h3 class="text-lg font-semibold text-white mb-1">Preparación de Documentación Base</h3>
+                        <time class="block mb-2 text-sm text-slate-500">Inmediato</time>
+                        <p class="text-sm text-slate-400">Recopilar estatutos de la fundación, estados financieros y CVs del equipo clave (Colossus Lab Team).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-slate-600">
+                    © 2025 Colossus Lab — Datos para planificación estratégica
+                </p>
+                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="text-sm text-cyan-500 hover:text-cyan-400 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+                    Descargar Informe Completo (PDF)
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== DETAIL MODAL ========== -->
+    <div id="detailModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-backdrop">
+        <div class="glass-card max-w-lg w-full p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+        // --- DATA ---
+        const opportunityData = [
+            {
+                id: 1, source: "BID Lab", program: "Convocatoria de Innovación Deep Tech",
+                category: "Multilateral", amount: 150000, difficulty: 8,
+                description: "Financiación para startups y fundaciones que usen tecnología profunda para impacto social en Latam.",
+                deadline: "2024-11-30", focus: ["Innovación", "Impacto Social"], status: "open",
+                requirements: "Personalidad jurídica, MVP validado, contrapartida 20%."
+            },
+            {
+                id: 2, source: "Cardano (Project Catalyst)", program: "Fund 11 - Developer Ecosystem",
+                category: "Blockchain", amount: 50000, difficulty: 4,
+                description: "Fondos votados por la comunidad para herramientas de código abierto que mejoren el ecosistema Cardano.",
+                deadline: "2024-10-15", focus: ["Desarrollo", "Open Source"], status: "closing-soon",
+                requirements: "Propuesta pública en Ideascale, Wallet ADA."
+            },
+            {
+                id: 3, source: "CAF", program: "Digitalización para el Desarrollo",
+                category: "Multilateral", amount: 200000, difficulty: 9,
+                description: "Apoyo técnico y financiero para proyectos que reduzcan la brecha digital en regiones andinas.",
+                deadline: "2025-01-20", focus: ["Infraestructura", "Política Pública"], status: "open",
+                requirements: "Alianza con gobierno local recomendada."
+            },
+            {
+                id: 4, source: "Internet Society (ISOC)", program: "Beyond the Net Large Grants",
+                category: "ONG", amount: 30000, difficulty: 6,
+                description: "Proyectos que empoderen a las personas para usar Internet en beneficio de sus comunidades.",
+                deadline: "2024-12-01", focus: ["Educación", "Conectividad"], status: "open",
+                requirements: "Ser capítulo de ISOC o miembro activo."
+            },
+            {
+                id: 5, source: "Optimism (RetroPGF)", program: "Retroactive Public Goods Funding",
+                category: "Blockchain", amount: 75000, difficulty: 5,
+                description: "Financiación retroactiva para proyectos que ya han aportado valor al ecosistema Ethereum/Optimism.",
+                deadline: "TBD", focus: ["Public Goods", "Ethereum"], status: "future",
+                requirements: "Demostración de impacto previo."
+            },
+            {
+                id: 6, source: "UNICEF Innovation Fund", program: "Blockchain Cohort",
+                category: "ONG", amount: 100000, difficulty: 8,
+                description: "Inversión en soluciones blockchain open-source que aborden desafíos de desarrollo global.",
+                deadline: "2024-11-15", focus: ["Niñez", "Transparencia"], status: "open",
+                requirements: "Tecnología Open Source obligatoria."
+            }
+        ];
+
+        // --- STATE ---
+        let appState = {
+            currentSection: 'dashboard',
+            following: [2]
+        };
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderOpportunities();
+            renderTimeline();
+            updateKPIs();
+
+            // Live search
+            document.getElementById('searchInput').addEventListener('input', renderOpportunities);
+            document.getElementById('categoryFilter').addEventListener('change', renderOpportunities);
+        });
+
+        // --- MOBILE MENU ---
+        function toggleMobileMenu() {
+            const btn = document.getElementById('hamburgerBtn');
+            const menu = document.getElementById('mobileMenu');
+            btn.classList.toggle('open');
+            menu.classList.toggle('open');
+        }
+        function closeMobileMenu() {
+            document.getElementById('hamburgerBtn').classList.remove('open');
+            document.getElementById('mobileMenu').classList.remove('open');
+        }
+
+        // --- NAVIGATION ---
+        function switchSection(sectionId) {
+            appState.currentSection = sectionId;
+            ['dashboard', 'explorer', 'roadmap'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${id}`);
+                navBtn.classList.remove('active-tab');
+                navBtn.classList.add('text-slate-400');
+            });
+            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${sectionId}`);
+            activeBtn.classList.add('active-tab');
+            activeBtn.classList.remove('text-slate-400');
+
+            if (sectionId === 'dashboard') {
+                setTimeout(() => Plotly.Plots.resize('scatterPlot'), 100);
+            }
+        }
+
+        // --- CHARTS ---
+        function initCharts() {
+            // Doughnut
+            const ctxDist = document.getElementById('distributionChart').getContext('2d');
+            const cats = {};
+            opportunityData.forEach(op => { cats[op.category] = (cats[op.category] || 0) + op.amount; });
+
+            new Chart(ctxDist, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats),
+                    datasets: [{
+                        data: Object.values(cats),
+                        backgroundColor: ['#06b6d4', '#6366f1', '#f59e0b'],
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        spacing: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', padding: 16, usePointStyle: true, pointStyleWidth: 10, font: { size: 12 } }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            callbacks: {
+                                label: ctx => `${ctx.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.raw)}`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Scatter Plot (Plotly)
+            const scatterTrace = {
+                x: opportunityData.map(d => d.difficulty),
+                y: opportunityData.map(d => d.amount),
+                mode: 'markers',
+                type: 'scatter',
+                text: opportunityData.map(d => `${d.source}<br>${d.program}`),
+                marker: {
+                    size: 14,
+                    color: opportunityData.map(d => d.category === 'Multilateral' ? '#06b6d4' : d.category === 'Blockchain' ? '#6366f1' : '#f59e0b'),
+                    opacity: 0.85,
+                    line: { width: 1, color: 'rgba(255,255,255,0.15)' }
+                }
+            };
+
+            const layout = {
+                margin: { t: 10, r: 10, b: 40, l: 55 },
+                xaxis: {
+                    title: { text: 'Dificultad (1-10)', font: { color: '#94a3b8', size: 12 } },
+                    range: [0, 11], gridcolor: '#1e293b', color: '#94a3b8', zerolinecolor: '#334155'
+                },
+                yaxis: {
+                    title: { text: 'Monto (USD)', font: { color: '#94a3b8', size: 12 } },
+                    gridcolor: '#1e293b', color: '#94a3b8', tickformat: '$,', zerolinecolor: '#334155'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                hovermode: 'closest',
+                hoverlabel: { bgcolor: '#1e293b', bordercolor: '#334155', font: { color: '#f1f5f9' } }
+            };
+
+            Plotly.newPlot('scatterPlot', [scatterTrace], layout, { responsive: true, displayModeBar: false });
+        }
+
+        // --- EXPLORER ---
+        function renderOpportunities() {
+            const grid = document.getElementById('opportunities-grid');
+            grid.innerHTML = '';
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const catFilter = document.getElementById('categoryFilter').value;
+
+            const filtered = opportunityData.filter(op => {
+                const matchesSearch = op.source.toLowerCase().includes(searchTerm) ||
+                    op.program.toLowerCase().includes(searchTerm) ||
+                    op.description.toLowerCase().includes(searchTerm);
+                const matchesCat = catFilter === 'all' || op.category === catFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            if (!filtered.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500">No se encontraron resultados. Intente otros filtros.</div>`;
+                return;
+            }
+
+            filtered.forEach((op, i) => {
+                const isFollowed = appState.following.includes(op.id);
+                const badgeClass = op.category === 'Multilateral' ? 'badge-multilateral' : op.category === 'Blockchain' ? 'badge-blockchain' : 'badge-ong';
+                const statusClass = op.status === 'open' ? 'status-open' : op.status === 'closing-soon' ? 'status-closing' : 'status-future';
+                const statusText = op.status === 'open' ? 'Abierta' : op.status === 'closing-soon' ? 'Cierra pronto' : 'Futura';
+
+                const card = document.createElement('div');
+                card.className = 'glass-card opp-card overflow-hidden flex flex-col animate-fade-up';
+                card.style.animationDelay = `${i * 80}ms`;
+                card.innerHTML = `
+                    <div class="p-4 sm:p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3 gap-2">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${badgeClass}">${op.category}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-xs font-medium rounded-full ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-white leading-tight mb-1">${op.source}</h3>
+                        <p class="text-sm font-medium text-slate-400 mb-3">${op.program}</p>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-3">${op.description}</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 bg-slate-800/50 p-3 rounded-lg">
+                            <div><span class="block font-bold text-slate-300">Monto:</span>$${op.amount.toLocaleString()}</div>
+                            <div><span class="block font-bold text-slate-300">Deadline:</span>${op.deadline === 'TBD' ? 'Por definir' : op.deadline}</div>
+                            <div class="col-span-2"><span class="block font-bold text-slate-300">Dificultad:</span>
+                                <div class="flex items-center gap-1 mt-1">
+                                    ${Array.from({ length: 10 }, (_, i) => `<div class="w-full h-1.5 rounded-full ${i < op.difficulty ? 'bg-cyan-500' : 'bg-slate-700'}"></div>`).join('')}
+                                    <span class="ml-1 text-slate-400">${op.difficulty}/10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-4 sm:px-5 py-3 bg-slate-800/30 border-t border-slate-700/30 flex gap-2">
+                        <button onclick="toggleFollow(${op.id})" class="flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all ${isFollowed ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-700/50 text-slate-400 border border-slate-600/50 hover:bg-slate-700'}">
+                            ${isFollowed ? '✓ Seguido' : '+ Seguir'}
+                        </button>
+                        <button onclick="showDetail(${op.id})" class="px-3 py-2 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition">
+                            Ver Detalles
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleFollow(id) {
+            if (appState.following.includes(id)) {
+                appState.following = appState.following.filter(fid => fid !== id);
+            } else {
+                appState.following.push(id);
+            }
+            renderOpportunities();
+            renderTimeline();
+            updateKPIs();
+        }
+
+        // --- DETAIL MODAL ---
+        function showDetail(id) {
+            const op = opportunityData.find(o => o.id === id);
+            if (!op) return;
+            const modal = document.getElementById('detailModal');
+            const badgeClass = op.category === 'Multilateral' ? 'badge-multilateral' : op.category === 'Blockchain' ? 'badge-blockchain' : 'badge-ong';
+            document.getElementById('modalContent').innerHTML = `
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${badgeClass}">${op.category}</span>
+                <h3 class="text-xl font-bold text-white mt-3 mb-1">${op.source}</h3>
+                <p class="text-sm text-cyan-400 mb-4">${op.program}</p>
+                <p class="text-sm text-slate-400 mb-4">${op.description}</p>
+                <div class="space-y-3 bg-slate-800/50 p-4 rounded-lg text-sm">
+                    <div class="flex justify-between"><span class="text-slate-500">Monto:</span><span class="text-white font-semibold">$${op.amount.toLocaleString()} USD</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Deadline:</span><span class="text-white">${op.deadline === 'TBD' ? 'Por definir' : op.deadline}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Dificultad:</span><span class="text-white">${op.difficulty}/10</span></div>
+                    <div class="flex flex-wrap gap-1 pt-1">${op.focus.map(f => `<span class="px-2 py-0.5 text-xs rounded-full bg-indigo-500/20 text-indigo-300">${f}</span>`).join('')}</div>
+                </div>
+                <div class="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p class="text-xs text-amber-300 font-semibold mb-1">📋 Requisitos</p>
+                    <p class="text-sm text-slate-300">${op.requirements}</p>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        document.getElementById('detailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+        // --- TIMELINE ---
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            const staticItem = container.firstElementChild;
+            container.innerHTML = '';
+            container.appendChild(staticItem);
+
+            const followedOps = opportunityData.filter(op => appState.following.includes(op.id));
+            followedOps.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            if (!followedOps.length) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'ml-6 text-slate-500 italic text-sm py-4';
+                emptyMsg.innerText = 'No hay oportunidades seleccionadas. Vaya al explorador y siga algunas.';
+                container.appendChild(emptyMsg);
+                return;
+            }
+
+            followedOps.forEach((op, index) => {
+                const item = document.createElement('div');
+                item.className = 'mb-10 ml-6 animate-fade-up';
+                item.style.animationDelay = `${index * 100}ms`;
+
+                const today = new Date();
+                const deadlineDate = new Date(op.deadline);
+                const diffDays = Math.ceil(Math.abs(deadlineDate - today) / (1000 * 60 * 60 * 24));
+                const urgencyBg = diffDays < 30 ? 'bg-red-900' : 'bg-cyan-900';
+                const urgencyText = diffDays < 30 ? 'text-red-300' : 'text-cyan-300';
+
+                item.innerHTML = `
+                    <span class="absolute flex items-center justify-center w-6 h-6 ${urgencyBg} rounded-full -left-3 ring-4 ring-slate-900">
+                        <span class="${urgencyText} text-xs font-bold">${index + 2}</span>
+                    </span>
+                    <h3 class="text-base sm:text-lg font-semibold text-white mb-1">
+                        Aplicar a ${op.source}
+                        <span class="bg-indigo-500/20 text-indigo-300 text-xs font-medium px-2 py-0.5 rounded ml-2">En progreso</span>
+                    </h3>
+                    <time class="block mb-2 text-sm text-slate-500">Deadline: ${op.deadline}</time>
+                    <p class="text-sm text-slate-400 mb-3">
+                        Programa: ${op.program}<br>
+                        Requisito Clave: ${op.requirements}
+                    </p>
+                    <a href="#" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-700/50 border border-slate-600/50 rounded-lg hover:bg-slate-700 transition">
+                        Iniciar Aplicación
+                        <svg class="w-3 h-3 ml-2" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>
+                    </a>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // --- KPIs ---
+        function updateKPIs() {
+            document.getElementById('kpi-count').innerText = opportunityData.length;
+            const total = opportunityData.reduce((acc, curr) => acc + curr.amount, 0);
+            document.getElementById('kpi-amount').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 3 }).format(total);
+        }
+    </script>
+</body>
+</html>
