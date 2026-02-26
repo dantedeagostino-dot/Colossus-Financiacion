@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Investigación de Fondos - Colossus Lab</title>
-    <meta name="description" content="Análisis estratégico de oportunidades de financiación para Fundación Colossus Lab. Subvenciones, becas y capital semilla de entidades multilaterales y ecosistemas Web3/Blockchain.">
+    <meta name="description"
+        content="Análisis estratégico de oportunidades de financiación para Fundación Colossus Lab. Subvenciones, becas y capital semilla de entidades multilaterales y ecosistemas Web3/Blockchain.">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,10 +28,23 @@
         }
 
         /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
 
         /* ===== GLASSMORPHISM CARDS ===== */
         .glass-card {
@@ -40,6 +55,7 @@
             border-radius: 1rem;
             transition: all 0.3s ease;
         }
+
         .glass-card:hover {
             border-color: rgba(99, 102, 241, 0.35);
             box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
@@ -51,8 +67,11 @@
             width: 100%;
             height: 280px;
         }
+
         @media (min-width: 768px) {
-            .chart-container { height: 320px; }
+            .chart-container {
+                height: 320px;
+            }
         }
 
         /* ===== KPI GLOW ===== */
@@ -60,6 +79,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .kpi-card::before {
             content: '';
             position: absolute;
@@ -87,9 +107,18 @@
             border-radius: 2px;
             transition: all 0.3s ease;
         }
-        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .hamburger.open span:nth-child(2) { opacity: 0; }
-        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
 
         /* ===== MOBILE MENU ===== */
         .mobile-menu {
@@ -97,6 +126,7 @@
             overflow: hidden;
             transition: max-height 0.35s ease;
         }
+
         .mobile-menu.open {
             max-height: 300px;
         }
@@ -108,6 +138,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .download-btn::after {
             content: '';
             position: absolute;
@@ -115,30 +146,51 @@
             left: 50%;
             width: 0;
             height: 0;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             transition: width 0.5s ease, height 0.5s ease;
         }
+
         .download-btn:hover::after {
             width: 300px;
             height: 300px;
         }
+
         .download-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(6, 182, 212, 0.35);
         }
 
         /* ===== CATEGORY BADGE COLORS ===== */
-        .badge-multilateral { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
-        .badge-blockchain { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
-        .badge-ong { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-multilateral {
+            background: rgba(6, 182, 212, 0.2);
+            color: #22d3ee;
+        }
+
+        .badge-blockchain {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+        }
+
+        .badge-ong {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
 
         /* ===== FADE IN ANIMATION ===== */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .animate-fade-up {
             animation: fadeUp 0.5s ease forwards;
         }
@@ -147,6 +199,7 @@
         .opp-card {
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
+
         .opp-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
@@ -161,17 +214,29 @@
         }
 
         /* ===== STATUS BADGES ===== */
-        .status-open { background: rgba(34,197,94,0.2); color: #4ade80; }
-        .status-closing { background: rgba(239,68,68,0.2); color: #f87171; }
-        .status-future { background: rgba(148,163,184,0.2); color: #94a3b8; }
+        .status-open {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .status-closing {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .status-future {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
 
         /* ===== MODAL ===== */
         .modal-backdrop {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
         }
     </style>
 </head>
+
 <body class="antialiased min-h-screen">
 
     <!-- ========== NAVIGATION ========== -->
@@ -188,17 +253,26 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-1">
-                    <button onclick="switchSection('dashboard')" id="nav-dashboard" class="px-3 py-2 text-sm font-medium active-tab transition-colors rounded-md">Dashboard</button>
-                    <button onclick="switchSection('explorer')" id="nav-explorer" class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Explorador</button>
-                    <button onclick="switchSection('roadmap')" id="nav-roadmap" class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Plan de Acción</button>
-                    <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="download-btn ml-3 px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+                    <button onclick="switchSection('dashboard')" id="nav-dashboard"
+                        class="px-3 py-2 text-sm font-medium active-tab transition-colors rounded-md">Dashboard</button>
+                    <button onclick="switchSection('explorer')" id="nav-explorer"
+                        class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Explorador</button>
+                    <button onclick="switchSection('roadmap')" id="nav-roadmap"
+                        class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Plan
+                        de Acción</button>
+                    <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
+                        class="download-btn ml-3 px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                        </svg>
                         Descargar PDF
                     </a>
                 </div>
 
                 <!-- Mobile Hamburger -->
-                <button class="hamburger md:hidden flex flex-col gap-[5px] p-2" id="hamburgerBtn" onclick="toggleMobileMenu()">
+                <button class="hamburger md:hidden flex flex-col gap-[5px] p-2" id="hamburgerBtn"
+                    onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -208,10 +282,16 @@
         <!-- Mobile Menu -->
         <div class="mobile-menu md:hidden border-t border-slate-700/50" id="mobileMenu">
             <div class="px-4 py-3 space-y-2">
-                <button onclick="switchSection('dashboard'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Dashboard</button>
-                <button onclick="switchSection('explorer'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Explorador de Fondos</button>
-                <button onclick="switchSection('roadmap'); closeMobileMenu();" class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Plan de Acción</button>
-                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="download-btn block text-center px-4 py-2 text-sm font-semibold text-white rounded-lg mt-2">
+                <button onclick="switchSection('dashboard'); closeMobileMenu();"
+                    class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Dashboard</button>
+                <button onclick="switchSection('explorer'); closeMobileMenu();"
+                    class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Explorador
+                    de Fondos</button>
+                <button onclick="switchSection('roadmap'); closeMobileMenu();"
+                    class="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-md">Plan
+                    de Acción</button>
+                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
+                    class="download-btn block text-center px-4 py-2 text-sm font-semibold text-white rounded-lg mt-2">
                     📥 Descargar Informe PDF
                 </a>
             </div>
@@ -241,7 +321,10 @@
                 <div class="flex items-start gap-3">
                     <span class="text-indigo-400 text-lg mt-0.5">ℹ</span>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        <strong class="text-indigo-300">Resumen Ejecutivo:</strong> Se han identificado oportunidades clave divididas entre "Banca Tradicional/Multilateral" (alta burocracia, altos montos) y "Fondos Web3/Tech" (rapidez, innovación, montos variables). Utilice los gráficos para entender la relación riesgo/beneficio.
+                        <strong class="text-indigo-300">Resumen Ejecutivo:</strong> Se han identificado oportunidades
+                        clave divididas entre "Banca Tradicional/Multilateral" (alta burocracia, altos montos) y "Fondos
+                        Web3/Tech" (rapidez, innovación, montos variables). Utilice los gráficos para entender la
+                        relación riesgo/beneficio.
                     </p>
                 </div>
             </div>
@@ -251,7 +334,8 @@
                 <div class="glass-card kpi-card p-4 sm:p-6">
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Oportunidades</p>
                     <p class="mt-2 text-2xl sm:text-3xl font-bold text-white" id="kpi-count">12</p>
-                    <span class="text-xs text-emerald-400 font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full mt-2 inline-block">Activas</span>
+                    <span
+                        class="text-xs text-emerald-400 font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full mt-2 inline-block">Activas</span>
                 </div>
                 <div class="glass-card kpi-card p-4 sm:p-6">
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Potencial Total</p>
@@ -262,7 +346,8 @@
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Dificultad Prom.</p>
                     <p class="mt-2 text-2xl sm:text-3xl font-bold text-white">Media-Alta</p>
                     <div class="w-full bg-slate-700 rounded-full h-1.5 mt-3">
-                        <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-1.5 rounded-full" style="width: 65%"></div>
+                        <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-1.5 rounded-full"
+                            style="width: 65%"></div>
                     </div>
                 </div>
                 <div class="glass-card kpi-card p-4 sm:p-6">
@@ -276,14 +361,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                 <div class="glass-card p-4 sm:p-6 flex flex-col">
                     <h3 class="text-lg font-semibold text-white mb-1">Distribución por Ecosistema</h3>
-                    <p class="text-sm text-slate-500 mb-4">Volumen de fondos disponibles: tradicionales vs. innovación.</p>
+                    <p class="text-sm text-slate-500 mb-4">Volumen de fondos disponibles: tradicionales vs. innovación.
+                    </p>
                     <div class="chart-container flex-grow">
                         <canvas id="distributionChart"></canvas>
                     </div>
                 </div>
                 <div class="glass-card p-4 sm:p-6 flex flex-col">
                     <h3 class="text-lg font-semibold text-white mb-1">Matriz: Impacto vs. Esfuerzo</h3>
-                    <p class="text-sm text-slate-500 mb-4">Buscamos el cuadrante superior izquierdo (Alto Impacto, Menor Esfuerzo).</p>
+                    <p class="text-sm text-slate-500 mb-4">Buscamos el cuadrante superior izquierdo (Alto Impacto, Menor
+                        Esfuerzo).</p>
                     <div class="chart-container" id="scatterPlot"></div>
                 </div>
             </div>
@@ -301,22 +388,25 @@
                 </p>
 
                 <!-- Filters -->
-                <div class="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end p-3 sm:p-4 bg-slate-800/50 rounded-lg">
+                <div
+                    class="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end p-3 sm:p-4 bg-slate-800/50 rounded-lg">
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-500 mb-1">Buscar</label>
                         <input type="text" id="searchInput" placeholder="Ej: Blockchain, Educación..."
-                               class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm">
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm">
                     </div>
                     <div class="flex-1 sm:max-w-[200px]">
                         <label class="block text-xs font-medium text-slate-500 mb-1">Categoría</label>
-                        <select id="categoryFilter" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
+                        <select id="categoryFilter"
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
                             <option value="all">Todas</option>
                             <option value="Multilateral">Multilateral (BID/CAF)</option>
                             <option value="Blockchain">Blockchain/Web3</option>
                             <option value="ONG">ONG / Tech Society</option>
                         </select>
                     </div>
-                    <button onclick="renderOpportunities()" class="download-btn px-5 py-2 text-sm font-semibold text-white rounded-md">
+                    <button onclick="renderOpportunities()"
+                        class="download-btn px-5 py-2 text-sm font-semibold text-white rounded-md">
                         Filtrar
                     </button>
                 </div>
@@ -336,12 +426,14 @@
 
                 <div class="relative border-l-2 border-cyan-800/50 ml-4 space-y-8" id="timeline-container">
                     <div class="mb-10 ml-6">
-                        <span class="absolute flex items-center justify-center w-6 h-6 bg-cyan-900 rounded-full -left-3 ring-4 ring-slate-900">
+                        <span
+                            class="absolute flex items-center justify-center w-6 h-6 bg-cyan-900 rounded-full -left-3 ring-4 ring-slate-900">
                             <span class="text-cyan-300 text-xs font-bold">1</span>
                         </span>
                         <h3 class="text-lg font-semibold text-white mb-1">Preparación de Documentación Base</h3>
                         <time class="block mb-2 text-sm text-slate-500">Inmediato</time>
-                        <p class="text-sm text-slate-400">Recopilar estatutos de la fundación, estados financieros y CVs del equipo clave (Colossus Lab Team).</p>
+                        <p class="text-sm text-slate-400">Recopilar estatutos de la fundación, estados financieros y CVs
+                            del equipo clave (Colossus Lab Team).</p>
                     </div>
                 </div>
             </div>
@@ -356,8 +448,11 @@
                 <p class="text-sm text-slate-600">
                     © 2025 Colossus Lab — Datos para planificación estratégica
                 </p>
-                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download class="text-sm text-cyan-500 hover:text-cyan-400 transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
+                    class="text-sm text-cyan-500 hover:text-cyan-400 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                    </svg>
                     Descargar Informe Completo (PDF)
                 </a>
             </div>
@@ -367,7 +462,8 @@
     <!-- ========== DETAIL MODAL ========== -->
     <div id="detailModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-backdrop">
         <div class="glass-card max-w-lg w-full p-6 relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+            <button onclick="closeModal()"
+                class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
             <div id="modalContent"></div>
         </div>
     </div>
@@ -417,6 +513,48 @@
                 description: "Inversión en soluciones blockchain open-source que aborden desafíos de desarrollo global.",
                 deadline: "2024-11-15", focus: ["Niñez", "Transparencia"], status: "open",
                 requirements: "Tecnología Open Source obligatoria."
+            },
+            {
+                id: 7, source: "Fondo DemocráTICa", program: "Fondos de Experimentación e Innovación",
+                category: "ONG", amount: 3000, difficulty: 2,
+                description: "Micro-subvenciones para la validación de hipótesis, diseño de interfaces y pruebas territoriales.",
+                deadline: "2026-05-29", focus: ["Tecnología Cívica", "Prototipado"], status: "open",
+                requirements: "Organización formal o colectivo informal. Proceso simple vía FONSELP."
+            },
+            {
+                id: 8, source: "Derechos Digitales", program: "Fondo de Respuesta Rápida (FRR)",
+                category: "ONG", amount: 8000, difficulty: 1,
+                description: "Oxígeno financiero inmediato para intervenciones tácticas frente a amenazas a la seguridad digital.",
+                deadline: "Permanente", focus: ["Seguridad Digital", "Respuesta Rápida"], status: "open",
+                requirements: "Sin necesidad de personería jurídica. Resolución en 5 días."
+            },
+            {
+                id: 9, source: "Digital Defenders", program: "Incident Response Fund (IRF)",
+                category: "ONG", amount: 5500, difficulty: 2,
+                description: "Apoyo para reposición de hardware, seguridad holística y soporte psicosocial frente a ataques.",
+                deadline: "Permanente", focus: ["Seguridad Holística", "Derechos Humanos"], status: "open",
+                requirements: "No requiere estar legalmente constituido. Resolución en 14 días."
+            },
+            {
+                id: 10, source: "Starknet Foundation", program: "Seed Grants (Capital Semilla)",
+                category: "Blockchain", amount: 25000, difficulty: 4,
+                description: "Financiación incondicional para prototipado rápido de bienes públicos digitales (MVP Web3).",
+                deadline: "Permanente", focus: ["Web3", "Public Goods"], status: "open",
+                requirements: "Enfoque en criptografía avanzada (Zero-Knowledge Proofs). Resolución en 14 días."
+            },
+            {
+                id: 11, source: "Check Global", program: "Independent Media Response Fund",
+                category: "ONG", amount: 15000, difficulty: 3,
+                description: "Asistencia para periodistas independientes, fact-checking y combate a la desinformación.",
+                deadline: "TBD", focus: ["Periodismo", "Fact-checking"], status: "open",
+                requirements: "Enfoque en desinformación climática y electoral."
+            },
+            {
+                id: 12, source: "Luminate", program: "Art for Change",
+                category: "Multilateral", amount: 25000, difficulty: 3,
+                description: "Subvenciones para arte cívico, diseño interactivo y narrativa audiovisual con propósito político.",
+                deadline: "TBD", focus: ["Arte Cívico", "Incidencia"], status: "open",
+                requirements: "Proyectos que eduquen sobre sesgos y privacidad digital."
             }
         ];
 
@@ -711,4 +849,5 @@
         }
     </script>
 </body>
+
 </html>
