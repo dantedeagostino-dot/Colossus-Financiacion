@@ -260,14 +260,27 @@
                     <button onclick="switchSection('roadmap')" id="nav-roadmap"
                         class="px-3 py-2 text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors rounded-md">Plan
                         de Acción</button>
-                    <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
-                        class="download-btn ml-3 px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
-                        </svg>
-                        Descargar PDF
-                    </a>
+                    <div class="flex items-center gap-2 ml-3">
+                        <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
+                            class="download-btn px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2"
+                            title="Fondos Estructurales e Institucionales">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                            </svg>
+                            Financiación Fuerte
+                        </a>
+                        <a href="Fondos para ColossusLab_ Opciones Sencillas.pdf" download
+                            class="download-btn px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2"
+                            style="background: linear-gradient(135deg, #10b981, #059669);"
+                            title="Micro-Subvenciones y Fondos Ágiles">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                            </svg>
+                            Opciones Sencillas
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Mobile Hamburger -->
@@ -292,7 +305,12 @@
                     de Acción</button>
                 <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
                     class="download-btn block text-center px-4 py-2 text-sm font-semibold text-white rounded-lg mt-2">
-                    📥 Descargar Informe PDF
+                    📥 Financiación Fuerte (PDF)
+                </a>
+                <a href="Fondos para ColossusLab_ Opciones Sencillas.pdf" download
+                    class="download-btn block text-center px-4 py-2 text-sm font-semibold text-white rounded-lg mt-2"
+                    style="background: linear-gradient(135deg, #10b981, #059669);">
+                    ⚡ Opciones Sencillas (PDF)
                 </a>
             </div>
         </div>
@@ -448,13 +466,24 @@
                 <p class="text-sm text-slate-600">
                     © 2025 Colossus Lab — Datos para planificación estratégica
                 </p>
-                <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
-                    class="text-sm text-cyan-500 hover:text-cyan-400 transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
-                    </svg>
-                    Descargar Informe Completo (PDF)
-                </a>
+                <div class="flex flex-col sm:flex-row gap-4 items-center">
+                    <a href="Búsqueda de Fondos para Colossuslab.tech.pdf" download
+                        class="text-sm text-cyan-500 hover:text-cyan-400 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                        </svg>
+                        Informe de Financiación Fuerte (PDF)
+                    </a>
+                    <a href="Fondos para ColossusLab_ Opciones Sencillas.pdf" download
+                        class="text-sm text-emerald-500 hover:text-emerald-400 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                        </svg>
+                        Informe de Opciones Sencillas (PDF)
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
